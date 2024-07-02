@@ -1,12 +1,25 @@
 <script setup lang="ts">
-  import {TerraDraw, TerraDrawMapLibreGLAdapter, TerraDrawFreehandMode, TerraDrawPointMode, } from 'terra-draw';
+  import {
+    TerraDraw,
+    TerraDrawMapLibreGLAdapter,
+    TerraDrawFreehandMode,
+    TerraDrawPointMode,
+    TerraDrawPolygonMode,
+  } from 'terra-draw';
   import mapLibreGL from 'maplibre-gl';
-  import { nextTick } from 'vue';
+  import { nextTick, ref } from 'vue';
   import { useFeaturesStore } from '@/stores/feature';
 
   const { features, setFeatures  } = useFeaturesStore();
-  const freeHand = new TerraDrawFreehandMode();
+  const selectedMode = ref('static');
+
+  const freehand = new TerraDrawFreehandMode();
   const point = new TerraDrawPointMode();
+  const polygon = new TerraDrawPolygonMode();
+
+  const modes = [freehand, point, polygon];
+
+  let draw: TerraDraw;
 
   nextTick(() => {
     const map = new mapLibreGL.Map({
@@ -22,28 +35,41 @@
       map: map,
     })
 
-    const draw = new TerraDraw({ 
+    draw = new TerraDraw({ 
       adapter,
-      modes: [freeHand, point]
+      modes,
     });
 
     draw.start();
-    
+
     map.on('load', () => {
-      console.log(features);
-      draw.addFeatures(features)
+      draw.addFeatures(features)  
     })
     
     draw.on('finish', () => {
       setFeatures(draw.getSnapshot());
-      console.log(features);
     })
+
+    
   })
-</script>
+  
+  const selectMode = (mode: string) => {
+      selectedMode.value = mode;
+      draw.setMode(mode);
+  }
+
+  </script>
 
 <template>
   <div class='h-[500px] w-[500px]'>
   <div id="map" class='h-full w-full'></div>
+  <div class="flex gap-2">
+    
+    <button @click="selectMode('static')">Static</button>
 
+    <div v-for="mode in modes" :key="mode.mode">
+      <button @click="selectMode(mode.mode)">{{ mode.mode }}</button>
+    </div>
+  </div>
   </div>
 </template>
