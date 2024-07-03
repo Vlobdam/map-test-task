@@ -12,6 +12,7 @@
   import { nextTick, ref } from 'vue';
   import { useFeaturesStore } from '@/stores/feature';
   import { capitalize } from '@/utils/capitalize';
+  import { saveAs } from 'file-saver';
 
   const { features, setFeatures  } = useFeaturesStore();
   const selectedMode = ref('static');
@@ -80,12 +81,18 @@
     map.setPaintProperty('td-point', 'circle-color', color);
     map.setPaintProperty('td-linestring', 'line-color', color);
     map.setPaintProperty('td-polygon-outline', 'line-color', color);
-    
   }
 
   const changeFillColor = (color: string) => {
     map.setPaintProperty('td-polygon', 'fill-color', color);
   }
+
+  const handleExport = () => {
+  	const jsonString = JSON.stringify(features);
+  	const blob = new Blob([jsonString], {type: 'application/geo+json'})
+
+  	saveAs(blob, 'file.geojson');
+  };
 </script>
 
 <template>
@@ -97,7 +104,8 @@
 		    <button 
 		    	class='border-2 border-black border-solid'
 		    	:class="getModeButtonClass('static')"
-		    	@click="selectMode('static')">
+		    	@click="selectMode('static')"
+		    	>
 		    	Static
 		   	</button>
 		    
@@ -113,7 +121,7 @@
 		  </div>
 	  </div>
 
-	  <form class='w-[250px] p-4'>
+	  <div class='w-[250px] p-4'>
       <h2 class='font-bold mb-4'>Settings: </h2>
 
       <div>
@@ -154,6 +162,11 @@
           @input="event => changeBorderColor((event.target as HTMLInputElement).value)"
         >
       </div>
-	  </form>
+
+      <button 
+      @click='handleExport'
+      >
+      export   </button>
+	  </div>
 	</div>
 </template>

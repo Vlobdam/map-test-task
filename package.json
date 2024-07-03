@@ -13,6 +13,8 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@types/file-saver": "^2.0.7",
+    "file-saver": "^2.0.5",
     "maplibre-gl": "^3.6.2",
     "pinia": "^2.1.7",
     "terra-draw": "^0.0.1-alpha.68",
