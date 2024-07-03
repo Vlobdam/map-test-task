@@ -8,7 +8,7 @@
     TerraDrawLineStringMode,
   } from 'terra-draw';
   
-  import mapLibreGL from 'maplibre-gl';
+  import mapLibreGL, {type Map} from 'maplibre-gl';
   import { nextTick, ref } from 'vue';
   import { useFeaturesStore } from '@/stores/feature';
   import { capitalize } from '@/utils/capitalize';
@@ -24,9 +24,10 @@
 	];
 
   let draw: TerraDraw;
+  let map: Map;
 
   nextTick(() => {
-    const map = new mapLibreGL.Map({
+    map = new mapLibreGL.Map({
       container: 'map',
       style: 'https://demotiles.maplibre.org/style.json',
       center: [0, 0],
@@ -49,11 +50,13 @@
     draw.start();
 
     map.on('load', () => {
-      draw.addFeatures(features)  
+      draw.addFeatures(features)
+      
     })
     
     draw.on('finish', () => {
       setFeatures(draw.getSnapshot());
+      console.log(map.getStyle())
     })
   })
   
@@ -62,19 +65,31 @@
       draw.setMode(mode);
   }
 
-  const getModeButtonClass = (mode) => {
+  const getModeButtonClass = (mode: string) => {
   	return `${mode === selectedMode.value 
   		? 'bg-[#DDD]' 
   		: 'bg-[#FFF]'
   	}`
   }
 
+  const changeOpacity = (opacity: string) => {
+    map.setPaintProperty('td-polygon', 'fill-opacity', Number(opacity));
+  }
 
+  const changeBorderColor = (color: string) => {
+    map.setPaintProperty('td-point', 'circle-color', color);
+    map.setPaintProperty('td-linestring', 'line-color', color);
+    map.setPaintProperty('td-polygon-outline', 'line-color', color);
+    
+  }
 
-  </script>
+  const changeFillColor = (color: string) => {
+    map.setPaintProperty('td-polygon', 'fill-color', color);
+  }
+</script>
 
 <template>
-	<div class='flex h-full'>
+	<div class='flex row h-full'>
 	  <div class='h-full w-[calc(100%-250px)]'>
 	    <div id="map" class='h-full w-full'></div>
 
@@ -98,8 +113,47 @@
 		  </div>
 	  </div>
 
-	  <form class='w-[250px]'>
-	  	<input type="" name="">
+	  <form class='w-[250px] p-4'>
+      <h2 class='font-bold mb-4'>Settings: </h2>
+
+      <div>
+        <label for="opacity">Body Opacity:</label>
+        
+        <input 
+          type="range"
+          id='opacity'
+          name="opacity"
+          min="0"
+          max="1"
+          step='0.1'
+          defaultValue="0.7"
+          @input="event => changeOpacity((event.target as HTMLInputElement).value)"
+          >     
+      </div>
+
+      <div class='flex flex-col '>
+        <label for='body-color'>Body Color: </label>
+        
+        <input 
+          id='body-color'
+          type="color"
+          name="body-color"
+          defaultValue="#3f97e0"
+          @input="event => changeFillColor((event.target as HTMLInputElement).value)"
+        >
+      </div>     
+
+      <div class='flex flex-col '>
+        <label for='color'>Border Color: </label>
+        
+        <input 
+          id='color' 
+          type="color" 
+          name="color"
+          defaultValue="#3f97e0"
+          @input="event => changeBorderColor((event.target as HTMLInputElement).value)"
+        >
+      </div>
 	  </form>
 	</div>
 </template>
