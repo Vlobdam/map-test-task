@@ -4,7 +4,7 @@
 
   const { features } = useFeaturesStore();
 
-  const formatCoordinates = (geometry) => {
+  const formatCoordinates = (geometry: { type: any; coordinates: any[]; }) => {
     switch(geometry.type) {
     	case 'Polygon': 
     		return '[' + geometry.coordinates[0].join('], \n[') + ']';

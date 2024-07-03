@@ -14,7 +14,7 @@
   import { capitalize } from '@/utils/capitalize';
   import { saveAs } from 'file-saver';
 
-  const { features, setFeatures  } = useFeaturesStore();
+  const { features, setFeatures } = useFeaturesStore();
   const selectedMode = ref('static');
 
   const modes = [
@@ -57,7 +57,6 @@
     
     draw.on('finish', () => {
       setFeatures(draw.getSnapshot());
-      console.log(map.getStyle())
     })
   })
   
@@ -88,7 +87,7 @@
   }
 
   const handleExport = () => {
-  	const jsonString = JSON.stringify(features);
+  	const jsonString = JSON.stringify(draw.getSnapshot());
   	const blob = new Blob([jsonString], {type: 'application/geo+json'})
 
   	saveAs(blob, 'file.geojson');
@@ -165,8 +164,10 @@
 
       <button 
       @click='handleExport'
+      class='border-2 border-black border-solid mt-2 text-center p-2'
       >
-      export   </button>
+        Export   
+      </button>
 	  </div>
 	</div>
 </template>
