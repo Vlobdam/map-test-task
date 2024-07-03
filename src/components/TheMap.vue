@@ -9,6 +9,7 @@
   import mapLibreGL from 'maplibre-gl';
   import { nextTick, ref } from 'vue';
   import { useFeaturesStore } from '@/stores/feature';
+  import { capitalize } from '@/utils/capitalize';
 
   const { features, setFeatures  } = useFeaturesStore();
   const selectedMode = ref('static');
@@ -29,6 +30,8 @@
       zoom: 1,
       maplibreLogo: false,
     })
+
+    map.removeControl(map._controls[0]);
 
     const adapter = new TerraDrawMapLibreGLAdapter({
       lib: mapLibreGL,
@@ -62,14 +65,18 @@
 
 <template>
   <div class='h-[500px] w-[500px]'>
-  <div id="map" class='h-full w-full'></div>
-  <div class="flex gap-2">
-    
-    <button @click="selectMode('static')">Static</button>
-
-    <div v-for="mode in modes" :key="mode.mode">
-      <button @click="selectMode(mode.mode)">{{ mode.mode }}</button>
-    </div>
+    <div id="map" class='h-full w-full'></div>
   </div>
+  
+  <div class="flex gap-2">
+    <button @click="selectMode('static')">Static</button>
+    
+    <button 
+      v-for="mode in modes"
+      :key="mode.mode"
+      @click="selectMode(mode.mode)"
+    >
+      {{ capitalize(mode.mode) }}
+    </button>
   </div>
 </template>
